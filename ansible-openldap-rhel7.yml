@@ -1,0 +1,4 @@
+- hosts: openldap-rh7
+  become : yes
+  roles:
+    - ldap

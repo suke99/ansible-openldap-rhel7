@@ -1,0 +1,6 @@
+# Install OpenLDAP
+- name: install openldap
+  yum: name={{ item }} state=latest
+  with_items:
+  - openldap-clients
+  - openldap-servers

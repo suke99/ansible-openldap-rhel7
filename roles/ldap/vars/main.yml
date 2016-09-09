@@ -1,0 +1,6 @@
+LDAP_DN: "dc=sios,dc=local"
+ROOT_DN: "cn=Manager,dc=sios,dc=local"
+ROOT_PW: "{SSHA}sLH9OmNJDPiTB7xi/JoT7Df2mZUTJQeL"
+ROOT_PW_UNENCRYPTED: "secret"
+DC_ATTRIBUTE_O: "SIOS Technology,Inc."
+DC_ATTRIBUTE_DC: "sios"

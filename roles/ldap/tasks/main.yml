@@ -1,0 +1,67 @@
+- include: install_openldap.yml
+- include: modify_selinux.yml
+
+# Stop slapd
+- name: Stop slapd
+  service: name=slapd enabled=yes state=stopped
+
+# Create /etc/openldap/slapd.d directory
+- name: Remove /etc/openldap/slapd.d.org
+  command: /bin/rm -rf /etc/openldap/slapd.d.org removes=/etc/openldap/slapd.d.org
+
+- name: Move the default slapd.d
+  command: /bin/mv /etc/openldap/slapd.d /etc/openldap/slapd.d.org removes=/etc/openldap/slapd.d
+
+- name: Create /etc/openldap/slapd.d
+  command: /bin/mkdir /etc/openldap/slapd.d creates=/etc/openldap/slapd.d
+
+# Clear the initial data
+- name: Remove /var/lib/ldap/*
+  shell: /bin/rm -fr /var/lib/ldap/*
+
+# Place the initial setting file
+- name: Create /etc/openldap/initial_settings
+  command: /bin/mkdir /etc/openldap/initial_settings creates=/etc/openldap/initial_settings
+
+- name: Place /etc/openldap/initial_settings/slapd.cfg
+  template: src=slapd.cfg.j2 dest=/etc/openldap/initial_settings/slapd.cfg owner=root group=root
+
+- name: Place /etc/openldap/initial_settings/database.cfg
+  template: src=database.cfg.j2 dest=/etc/openldap/initial_settings/database.cfg owner=root group=root
+
+- name: Place /etc/openldap/initial_settings/userdata.ldif
+  template: src=userdata.ldif.j2 dest=/etc/openldap/initial_settings/userdata.ldif owner=root group=root
+
+# Importing the initial setting file (1/2)
+- name: Importing the initial setting file - slapd.cfg
+  command: /usr/sbin/slaptest -f /etc/openldap/initial_settings/slapd.cfg -F /etc/openldap/slapd.d/
+
+- name: Change the permissions
+  file: path={{ item }} owner=ldap group=ldap mode=0755 recurse=yes state=directory
+  with_items:
+  - /var/lib/ldap
+  - /etc/openldap/slapd.d/
+
+# Start slapd
+- name: Start slapd
+  service: name=slapd enabled=yes state=started
+
+# Add LDAP schema
+- name: Add LDAP schema
+  shell: /usr/bin/ldapadd -x -D 'cn=config' -f {{ item }} -w {{ ROOT_PW_UNENCRYPTED }}
+  with_items:
+  - /etc/openldap/schema/core.ldif
+  - /etc/openldap/schema/cosine.ldif
+  - /etc/openldap/schema/inetorgperson.ldif
+  - /etc/openldap/schema/nis.ldif
+  - /etc/openldap/schema/openldap.ldif
+
+# Importing the initial setting file (2/2)
+- name: Importing the initial setting file - database.cfg
+  command: /usr/bin/ldapadd -x -D 'cn=config' -f /etc/openldap/initial_settings/database.cfg -w {{ ROOT_PW_UNENCRYPTED }}
+
+# Add LDAP Data
+- name: Add LDAP Data
+  shell: /usr/bin/ldapadd -x -D '{{ ROOT_DN }}' -f {{ item }} -w {{ ROOT_PW_UNENCRYPTED }}
+  with_items:
+  - /etc/openldap/initial_settings/userdata.ldif

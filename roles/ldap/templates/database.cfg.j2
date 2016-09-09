@@ -1,0 +1,23 @@
+dn: olcBackend=bdb,cn=config
+objectClass: olcBackendConfig
+olcBackend: bdb
+
+dn: olcDatabase=bdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcBdbConfig
+olcDatabase: bdb
+olcSuffix: {{ LDAP_DN }}
+olcRootDN: {{ ROOT_DN }}
+olcRootPW: {{ ROOT_PW }}
+olcSizeLimit: unlimited
+olcDbCachesize: 10000
+olcDbIDLCachesize: 10000
+olcDbCheckpoint: 1024 10
+olcDbDirectory: /var/lib/ldap/
+olcDbConfig: set_cachesize 0 268435456 0
+olcDbConfig: set_lg_bsize 4194304
+olcDbConfig: set_lk_max_locks 8000
+olcDbConfig: set_lk_max_objects 8000
+olcDbConfig: set_flags DB_LOG_AUTOREMOVE
+olcAccess: to dn.subtree="{{ LDAP_DN }}" by self read by * auth by * none
+olcAccess: to * by dn="{{ ROOT_DN }}" write by * none

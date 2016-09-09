@@ -1,0 +1,13 @@
+- name: SELinux Disabled
+  command: setenforce 0 
+
+- name: SELinux Disabled
+  lineinfile: >-
+    dest='/etc/selinux/config'
+    state=present
+    backrefs=yes
+    regexp='{{ item.regexp }}'
+    line='{{ item.line }}'
+  with_items:
+  - regexp: '^\s*SELINUX='
+    line: 'SELINUX=disabled'

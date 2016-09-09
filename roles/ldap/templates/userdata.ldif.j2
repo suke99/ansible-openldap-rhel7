@@ -1,0 +1,19 @@
+dn: {{ LDAP_DN }}
+objectClass: organization
+objectClass: dcObject
+o: {{ DC_ATTRIBUTE_O }}
+dc: {{ DC_ATTRIBUTE_DC }}
+
+dn: ou=users,{{ LDAP_DN }}
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: uid=testaccount,ou=users,{{ LDAP_DN }}
+sn: testaccount
+cn: testaccount
+userPassword: password
+objectClass: inetOrgPerson
+objectClass: top
+uid: testaccount
+
