@@ -9,15 +9,15 @@
 - name: Remove /etc/openldap/slapd.d.org
   command: /bin/rm -rf /etc/openldap/slapd.d.org removes=/etc/openldap/slapd.d.org
 
-- name: Move the default slapd.d
-  command: /bin/mv /etc/openldap/slapd.d /etc/openldap/slapd.d.org removes=/etc/openldap/slapd.d
-
-- name: Create /etc/openldap/slapd.d
-  command: /bin/mkdir /etc/openldap/slapd.d creates=/etc/openldap/slapd.d
+- name: Copy the default slapd.d
+  command: /bin/cp -pr /etc/openldap/slapd.d /etc/openldap/slapd.d.org removes=/etc/openldap/slapd.d
 
 # Clear the initial data
 - name: Remove /var/lib/ldap/*
-  shell: /bin/rm -fr /var/lib/ldap/*
+  shell: /bin/rm -fr {{ item }}
+  with_items:
+  - /var/lib/ldap/*
+  - /etc/openldap/slapd.d/*
 
 # Place the initial setting file
 - name: Create /etc/openldap/initial_settings
@@ -37,7 +37,7 @@
   command: /usr/sbin/slaptest -f /etc/openldap/initial_settings/slapd.cfg -F /etc/openldap/slapd.d/
 
 - name: Change the permissions
-  file: path={{ item }} owner=ldap group=ldap mode=0755 recurse=yes state=directory
+  file: path={{ item }} owner=ldap group=ldap recurse=yes state=directory
   with_items:
   - /var/lib/ldap
   - /etc/openldap/slapd.d/
