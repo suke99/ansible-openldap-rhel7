@@ -1,4 +1,4 @@
-- hosts: openldap-rh7
+- hosts: ansible-openldap-rhel7
   become : yes
   roles:
     - ldap
